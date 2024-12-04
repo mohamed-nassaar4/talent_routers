@@ -4,7 +4,7 @@ const { getTodo, todoCreate, todoUpdate, todoDelete } = require('../controller/t
 const {authenticate}=require('../utils/jwt_token_gen')
 
 router.get('/get_todo',authenticate, getTodo);
-router.post('/todo_insert',authenticate, todoCreate)
+router.post('/todo_insert', authenticate,todoCreate)
 router.post('/todo_update',authenticate, todoUpdate);
 router.post('/todo_delete',authenticate,todoDelete);
 

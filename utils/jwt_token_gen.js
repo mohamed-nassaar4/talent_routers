@@ -30,24 +30,33 @@ async function verifyToken(req, res, next) {
       return res.status(401).json({ msg: 'Access Denied. No token provided.' });
     }
 
-    if (!refreshToken) {
-      return res.status(401).json({ msg: 'Access Denied. No refresh token provided.' });
-    }
+ 
 
     jwt.verify(accessToken, jwt_secret_key, (err, decoded) => {
-      //  if (err) {
-      //   console.error(err);
-      //   return res.status(401).json({ msg: "Unauthorized" });
-      // }
+       if (err) {
+        // console.error(err);
+        if (!refreshToken) {
+          return res.status(401).json({ msg: 'Access Denied. No refresh token provided.' });
+        }
+        console.log(decoded, "Decoded Token");
 
-      console.log(decoded, "Decoded Token");
-      const newAccessToken = jwt.sign({ user: decoded }, jwt_secret_key, { expiresIn: '5m' });
+        jwt.verify(refreshToken,jwt_secret_key,(err,decoded1)=>{
+          if(err){
+            console.error(err);
+            return res.status(401).json({ msg: "Unauthorized" });
+          }
+          const newAccessToken = jwt.sign({ user: decoded1 }, jwt_secret_key, { expiresIn: '5m' });
 
-      res
-        .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
-        .header('authorization', newAccessToken);
+          res
+            .cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'strict' })
+            .header('authorization',newAccessToken)
+          next();
+        })
+       
+        // return res.status(401).json({ msg: "Unauthorized" });
+      }
 
-      next();
+    
     });
   } catch (e) {
     console.error(e);
